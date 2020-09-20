@@ -5,28 +5,13 @@ import * as ReactMarkdown from 'react-markdown'
 import { putMemo } from '../indexeddb/memos'
 import { Button } from '../components/button'
 import { SaveModal } from '../components/save_modal'
-const {useState} = React
-const StorageKey = 'pages/editor:text'
-
-const Header = styled.header`
-  align-content: center;
-  display: flex;
-  font-size: 1.5rem;
-  height: 2rem;
-  justify-content: space-between;
-  left: 0;
-  line-height: 2rem;
-  padding: 0.5rem 1rem;
-  position: fixed;
-  right: 0;
-  top: 0;
-`
-
-const HeaderControl = styled.div`
-  height: 2rem;
-  display: flex;
-  align-content: center;
-`
+import { Link } from 'react-router-dom'
+import { Header } from '../components/header'
+const { useState } = React
+interface Props {
+  text: string
+  setText: (text: string) => void
+}
 
 const Wrapper = styled.div`
   bottom: 0;
@@ -34,6 +19,13 @@ const Wrapper = styled.div`
   position: fixed;
   right: 0;
   top: 3rem;
+`
+
+const HeaderArea = styled.div`
+  position: fixed;
+  right: 0;
+  top: 0;
+  left: 0;
 `
 
 const TextArea = styled.textarea`
@@ -59,21 +51,22 @@ const Preview = styled.div`
   width: 50vw;
 `
 
-export const Editor: React.FC = () => {
-  const [text, setText] = useStateWithStorage('', StorageKey)
-
+export const Editor: React.FC<Props> = (props) => {
+  const { text, setText } = props
   const [showModal, setShowModal] = useState(false)
 
   return (
     <>
-      <Header>
-        Markdown Editor
-        <HeaderControl>
+      <HeaderArea>
+        <Header title="Markdown Editor">
           <Button onClick={() => setShowModal(true)}>
             保存する
           </Button>
-        </HeaderControl>
-      </Header>
+          <Link to="/history">
+            履歴を見る
+          </Link>
+        </Header>
+      </HeaderArea>
       <Wrapper>
         <TextArea
           onChange={(event) => setText(event.target.value)}
@@ -84,11 +77,11 @@ export const Editor: React.FC = () => {
         </Preview>
       </Wrapper>
       {showModal && (
-        <SaveModal onSave={(title:string): void => {
+        <SaveModal onSave={(title: string): void => {
           putMemo(title, text)
           setShowModal(false)
         }}
-        onCancel={() => setShowModal(false)}
+          onCancel={() => setShowModal(false)}
         />
       )}
     </>
